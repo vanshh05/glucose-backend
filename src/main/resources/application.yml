@@ -30,20 +30,10 @@ glucose:
     timeout-seconds: ${MODEL_TIMEOUT_SECONDS:60}
     # Retry only on 5xx/timeout. 0 = no retries, 1 = one extra attempt.
     retries: ${MODEL_RETRIES:1}
-  ingest:
-    # Expected window shape — rejected if device sends something else.
+    ingest:
     expected-samples: 3000
     expected-sampling-rate-hz: 100
-    expected-channels:
-      - green_530
-      - red_660
-      - nir_940
-      - dark_signal
-      - skin_temp
-      - pressure
-      - accel_x
-      - accel_y
-      - accel_z
+    expected-channels: green_530,red_660,nir_940,dark_signal,skin_temp,pressure,accel_x,accel_y,accel_z
   # Simple shared-secret auth. Rotate via env in production.
   security:
     device-api-key: ${DEVICE_API_KEY:dev-only-change-me}
