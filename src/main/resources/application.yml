@@ -1,9 +1,7 @@
-server:
+﻿server:
   port: ${PORT:8080}
-  # Allow the ~540 KB inbound JSON payload comfortably.
   tomcat:
     max-http-form-post-size: 10MB
-  # Enable gzip on responses (payloads up).
   compression:
     enabled: true
     mime-types: application/json
@@ -12,7 +10,6 @@ server:
 spring:
   application:
     name: glucose-backend
-  # Inbound JSON body size cap — must fit a full 30-second window comfortably.
   codec:
     max-in-memory-size: 10MB
   mvc:
@@ -23,23 +20,16 @@ spring:
       max-request-size: 10MB
 
 glucose:
-  # The model endpoint. Override via env var MODEL_ENDPOINT for staging / local.
   model:
     endpoint: ${MODEL_ENDPOINT:https://glucospectra-gcnn.onrender.com/predict}
-    # Render free-tier cold starts can be up to 50s. Keep generous.
     timeout-seconds: ${MODEL_TIMEOUT_SECONDS:60}
-    # Retry only on 5xx/timeout. 0 = no retries, 1 = one extra attempt.
     retries: ${MODEL_RETRIES:1}
-    ingest:
+  ingest:
     expected-samples: 3000
     expected-sampling-rate-hz: 100
     expected-channels: green_530,red_660,nir_940,dark_signal,skin_temp,pressure,accel_x,accel_y,accel_z
-  # Simple shared-secret auth. Rotate via env in production.
   security:
     device-api-key: ${DEVICE_API_KEY:dev-only-change-me}
-
-  # Supabase persistence — off by default so local dev works without it.
-  # Flip enabled=true (via env SUPABASE_ENABLED=true) once URL + key are set.
   supabase:
     enabled: ${SUPABASE_ENABLED:false}
     url: ${SUPABASE_URL:}
