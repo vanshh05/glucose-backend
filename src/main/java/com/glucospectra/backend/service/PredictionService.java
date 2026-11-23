@@ -4,8 +4,10 @@ import com.glucospectra.backend.dto.DeviceCapturePayload;
 import com.glucospectra.backend.dto.IngestResponse;
 import com.glucospectra.backend.dto.ModelRequest;
 import com.glucospectra.backend.dto.ModelResponse;
+import com.glucospectra.backend.persistence.CaptureCompletedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,8 +16,9 @@ import java.util.Map;
 /**
  * Orchestration: validate → transform → model call → clean response.
  *
- * Kept intentionally thin. Persistence (Supabase writes) will be added as a
- * separate component without touching this class.
+ * Publishes a CaptureCompletedEvent after each successful prediction so the
+ * persistence layer (or anyone else — webhooks, analytics) can hook in
+ * without touching this flow.
  */
 @Service
 public class PredictionService {
@@ -25,13 +28,16 @@ public class PredictionService {
     private final CaptureValidator validator;
     private final CaptureTransformer transformer;
     private final ModelClient modelClient;
+    private final ApplicationEventPublisher events;
 
     public PredictionService(CaptureValidator validator,
                              CaptureTransformer transformer,
-                             ModelClient modelClient) {
+                             ModelClient modelClient,
+                             ApplicationEventPublisher events) {
         this.validator = validator;
         this.transformer = transformer;
         this.modelClient = modelClient;
+        this.events = events;
     }
 
     public IngestResponse process(DeviceCapturePayload capture) {
@@ -47,25 +53,36 @@ public class PredictionService {
         // 3. Call the model.
         ModelResponse modelResp = modelClient.predict(modelReq);
 
-        // 4. Pull the glucose number out if the model gave us one, keep the whole blob too.
+        // 4. Build the clean response.
         Double glucose = extractGlucose(modelResp.raw());
-
-        return new IngestResponse(
+        IngestResponse response = new IngestResponse(
                 capture.captureUuid(),
                 modelReq.recordingId(),
                 Instant.now(),
                 glucose,
                 modelResp.raw()
         );
+
+        // 5. Fire-and-forget event for persistence / downstream consumers.
+        //    An async listener handles the actual write; this call doesn't block.
+        events.publishEvent(new CaptureCompletedEvent(capture, response));
+
+        return response;
     }
 
     /**
      * Best-effort parse of the glucose number. The model team can change field
-     * names without breaking us — we check a few likely ones.
+     * names without breaking us — we check the current and likely future ones.
      */
     private Double extractGlucose(Map<String, Object> raw) {
         if (raw == null) return null;
-        for (String key : new String[]{"glucose_mgdl", "glucose", "prediction", "predicted_mgdl", "predicted_glucose_mg_dl"}) {
+        for (String key : new String[]{
+                "predicted_glucose_mg_dl",  // current live model
+                "glucose_mgdl",
+                "predicted_mgdl",
+                "glucose",
+                "prediction"
+        }) {
             Object v = raw.get(key);
             if (v instanceof Number n) return n.doubleValue();
         }
