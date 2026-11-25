@@ -70,7 +70,10 @@ public class SupabaseClient {
                     .uri(restUrl + "/" + table)
                     .header("apikey", serviceKey)
                     .header("Authorization", "Bearer " + serviceKey)
-                    .header("Prefer", "resolution=merge-duplicates,return=minimal")
+                    // ignore-duplicates: ON CONFLICT DO NOTHING (only needs INSERT)
+                    // merge-duplicates would need UPDATE privilege, which we
+                    // deliberately revoked on raw_windows / predictions.
+                    .header("Prefer", "resolution=ignore-duplicates,return=minimal")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(body)
                     .retrieve()
