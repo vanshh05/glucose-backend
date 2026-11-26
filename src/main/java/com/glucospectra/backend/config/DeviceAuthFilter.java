@@ -41,11 +41,16 @@ public class DeviceAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
-        // Health probes stay open.
-        return path.endsWith("/health") || path.equals("/");
-    }
+protected boolean shouldNotFilter(HttpServletRequest request) {
+    String path = request.getRequestURI();
+    // Health probes stay open.
+    // CORS preflight OPTIONS requests bypass auth — they carry no body and
+    // no Authorization header, and must be answered by Spring's CORS filter
+    // so the browser can decide whether to send the real request.
+    return path.endsWith("/health")
+            || path.equals("/")
+            || "OPTIONS".equalsIgnoreCase(request.getMethod());
+}
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
