@@ -1,0 +1,12 @@
+n,name,file,http_status,glucose_mgdl,elapsed_s
+1,baseline,scenario_01_baseline.json,200,129.99,1.57
+2,pulse_slow_60,scenario_02_pulse_slow_60.json,200,482.11,1.27
+3,pulse_slow_80,scenario_03_pulse_slow_80.json,200,300.32,1.19
+4,pulse_slight_fast_120,scenario_04_pulse_slight_fast_120.json,200,286.96,1.5
+5,pulse_fast_150,scenario_05_pulse_fast_150.json,200,261.31,1.28
+6,pulse_very_fast_180,scenario_06_pulse_very_fast_180.json,200,296.58,1.11
+7,pulse_fast_200,scenario_07_pulse_fast_200.json,200,124.19,1.11
+8,timeshift_25pct,scenario_08_timeshift_25pct.json,200,118.9,1.18
+9,timeshift_50pct,scenario_09_timeshift_50pct.json,200,116.39,1.2
+10,pulse_fast_amp_tiny_up,scenario_10_pulse_fast_amp_tiny_up.json,200,223.08,1.09
+11,pulse_slow_amp_tiny_down,scenario_11_pulse_slow_amp_tiny_down.json,422,,2.66

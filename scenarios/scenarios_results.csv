@@ -1,0 +1,11 @@
+n,name,file,http_status,glucose_mgdl,elapsed_s,model_note
+1,baseline,scenario_01_baseline.json,200,129.99,4.91,SYNTHETIC DEMO ONLY: this is not a real glucose estimate.
+2,strong_perfusion,scenario_02_strong_perfusion.json,422,,1.86,
+3,weak_perfusion,scenario_03_weak_perfusion.json,422,,1.7,
+4,high_dc,scenario_04_high_dc.json,422,,1.42,
+5,low_dc,scenario_05_low_dc.json,422,,1.61,
+6,red_shifted,scenario_06_red_shifted.json,422,,1.48,
+7,ir_dominant,scenario_07_ir_dominant.json,422,,1.32,
+8,warm_finger,scenario_08_warm_finger.json,422,,1.41,
+9,cool_finger,scenario_09_cool_finger.json,422,,1.39,
+10,faster_pulse,scenario_10_faster_pulse.json,200,159.76,1.39,SYNTHETIC DEMO ONLY: this is not a real glucose estimate.
